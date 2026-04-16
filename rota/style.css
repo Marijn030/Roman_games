@@ -208,25 +208,40 @@ body {
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: auto;
+  object-fit: contain;
+}
+
+/* White stone */
+.piece[data-player="1"] {
   filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
 }
 
+/* Dark stone */
 .piece[data-player="2"] {
   filter:
-    brightness(0.4)
-    contrast(1.3)
-    drop-shadow(0 6px 10px rgba(0,0,0,0.6));
+    brightness(0.28)
+    contrast(1.35)
+    drop-shadow(0 6px 10px rgba(0,0,0,0.65));
 }
 
 .piece:hover {
   transform: translate(-50%, -50%) scale(1.08);
 }
 
-.piece.selected {
+.piece[data-player="1"].selected {
   transform: translate(-50%, -50%) scale(1.25);
   filter:
     drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
     drop-shadow(0 8px 14px rgba(0,0,0,0.45));
+}
+
+.piece[data-player="2"].selected {
+  transform: translate(-50%, -50%) scale(1.25);
+  filter:
+    brightness(0.28)
+    contrast(1.35)
+    drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
+    drop-shadow(0 8px 14px rgba(0,0,0,0.65));
 }
 
 .modal {
@@ -291,7 +306,7 @@ body {
 
   .piece {
     width: 40px;
-    height: 40px;
+    aspect-ratio: 1 / 1;
   }
 }
 
