@@ -1,23 +1,39 @@
 body {
   display: flex;
   justify-content: center;
-  margin-top: 50px;
+  margin-top: 40px;
   background: #eee;
 }
 
 #game {
   position: relative;
-  width: 400px;
-  height: 400px;
+  width: 500px;
+  height: 500px;
 }
 
 #board {
   width: 100%;
+  display: block;
 }
 
 .piece {
   position: absolute;
   width: 40px;
   height: 40px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.selected {
+  transform: scale(1.2);
+}
+
+/* DEBUG klikpunten */
+.dot {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: rgba(255,0,0,0.3);
+  border-radius: 50%;
   cursor: pointer;
 }
