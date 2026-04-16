@@ -2,7 +2,6 @@ const BOARD_WIDTH = 4032;
 const BOARD_HEIGHT = 3024;
 
 // Exact circles from your image map.
-// Order is important and matches the connection graph below.
 const nodes = [
   { x: 1633, y: 581,  r: 138 }, // 0 top
   { x: 2705, y: 648,  r: 132 }, // 1 top-right
@@ -38,11 +37,22 @@ let board = Array(9).fill(null);
 let currentPlayer = 1;
 let placed = { 1: 0, 2: 0 };
 let selected = null;
+let gameOver = false;
 
 const game = document.getElementById("game");
 const boardImg = document.getElementById("board");
 const holesContainer = document.getElementById("holes");
 const piecesContainer = document.getElementById("pieces");
+
+const phaseText = document.getElementById("phaseText");
+const turnText = document.getElementById("turnText");
+const countP1 = document.getElementById("countP1");
+const countP2 = document.getElementById("countP2");
+const resetBtn = document.getElementById("resetBtn");
+
+const winModal = document.getElementById("winModal");
+const winMessage = document.getElementById("winMessage");
+const playAgainBtn = document.getElementById("playAgainBtn");
 
 function scaleX(x) {
   return (x / BOARD_WIDTH) * game.clientWidth;
@@ -73,6 +83,10 @@ function updatePiecePosition(pieceEl, index) {
   pieceEl.dataset.index = String(index);
 }
 
+function isPlacementPhase() {
+  return placed[1] < 3 || placed[2] < 3;
+}
+
 function checkWin(player) {
   return winningLines.some(line => line.every(i => board[i] === player));
 }
@@ -86,16 +100,64 @@ function clearSelection() {
 
 function switchPlayer() {
   currentPlayer = currentPlayer === 1 ? 2 : 1;
+  updateStatus();
 }
 
 function refreshHoles() {
   document.querySelectorAll(".hole").forEach((holeEl, index) => {
-    if (board[index] !== null) {
+    if (board[index] !== null || gameOver) {
       holeEl.classList.add("occupied");
     } else {
       holeEl.classList.remove("occupied");
     }
   });
+}
+
+function updateStatus() {
+  countP1.textContent = placed[1];
+  countP2.textContent = placed[2];
+
+  if (gameOver) {
+    phaseText.textContent = "Afgelopen";
+    turnText.textContent = "Het spel is voorbij";
+    turnText.className = "value";
+    return;
+  }
+
+  if (isPlacementPhase()) {
+    phaseText.textContent = "Plaatsen";
+
+    turnText.textContent =
+      `Speler ${currentPlayer}: kies een plek en plaats je steen`;
+
+  } else {
+    phaseText.textContent = "Verplaatsen";
+
+    if (!selected) {
+      turnText.textContent =
+        `Speler ${currentPlayer}: kies een steen om te verplaatsen`;
+
+    } else {
+      turnText.textContent =
+        `Speler ${currentPlayer}: kies een geldige plek om naartoe te bewegen`;
+    }
+  }
+
+  turnText.className = `value player-${currentPlayer}`;
+}
+
+function showWinPopup(player) {
+  gameOver = true;
+  updateStatus();
+  refreshHoles();
+  clearSelection();
+
+  winMessage.textContent = `Speler ${player} wint!`;
+  winModal.classList.remove("hidden");
+}
+
+function hideWinPopup() {
+  winModal.classList.add("hidden");
 }
 
 function createPiece(player, index) {
@@ -110,7 +172,8 @@ function createPiece(player, index) {
   el.addEventListener("click", (event) => {
     event.stopPropagation();
 
-    if (placed[1] < 3 || placed[2] < 3) return;
+    if (gameOver) return;
+    if (isPlacementPhase()) return;
     if (player !== currentPlayer) return;
 
     clearSelection();
@@ -119,12 +182,16 @@ function createPiece(player, index) {
       el,
       from: Number(el.dataset.index)
     };
+
+    updateStatus();
   });
 
   piecesContainer.appendChild(el);
 }
 
 function handleHoleClick(index) {
+  if (gameOver) return;
+
   // Phase 1: placing
   if (placed[currentPlayer] < 3) {
     if (board[index] !== null) return;
@@ -134,9 +201,10 @@ function handleHoleClick(index) {
     placed[currentPlayer]++;
 
     refreshHoles();
+    updateStatus();
 
     if (checkWin(currentPlayer)) {
-      setTimeout(() => alert(`Player ${currentPlayer} wins!`), 50);
+      showWinPopup(currentPlayer);
       return;
     }
 
@@ -157,9 +225,10 @@ function handleHoleClick(index) {
   selected = null;
 
   refreshHoles();
+  updateStatus();
 
   if (checkWin(currentPlayer)) {
-    setTimeout(() => alert(`Player ${currentPlayer} wins!`), 50);
+    showWinPopup(currentPlayer);
     return;
   }
 
@@ -196,8 +265,25 @@ function repositionPieces() {
   });
 }
 
+function resetGame() {
+  board = Array(9).fill(null);
+  currentPlayer = 1;
+  placed = { 1: 0, 2: 0 };
+  selected = null;
+  gameOver = false;
+
+  piecesContainer.innerHTML = "";
+  hideWinPopup();
+  createHoles();
+  updateStatus();
+}
+
+resetBtn.addEventListener("click", resetGame);
+playAgainBtn.addEventListener("click", resetGame);
+
 window.addEventListener("load", () => {
   createHoles();
+  updateStatus();
 });
 
 window.addEventListener("resize", () => {

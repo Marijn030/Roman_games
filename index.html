@@ -1,18 +1,61 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <title>Rota game</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rota spel</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="page-overlay"></div>
 
-<div id="game">
-  <img id="board" src="board.png" alt="Rota bord">
-  <div id="holes"></div>
-  <div id="pieces"></div>
-</div>
+  <main class="app">
+    <header class="topbar">
+      <h1>Rota spel</h1>
+      <p class="subtitle">Plaats je stenen, vorm een lijn en win.</p>
+    </header>
 
-<script src="script.js"></script>
+    <section class="game-shell">
+      <aside class="info-panel">
+        <div class="status-card">
+          <span class="label">Fase</span>
+          <div id="phaseText" class="value">Plaatsen</div>
+        </div>
+
+        <div class="status-card">
+          <span class="label">Beurt</span>
+          <div id="turnText" class="value player-1">Speler 1 legt een steen</div>
+        </div>
+
+        <div class="status-card small">
+          <span class="label">Geplaatste stenen</span>
+          <div class="stone-counts">
+            <div>Speler 1: <strong id="countP1">0</strong>/3</div>
+            <div>Speler 2: <strong id="countP2">0</strong>/3</div>
+          </div>
+        </div>
+
+        <button id="resetBtn" class="reset-btn">Reset spel</button>
+      </aside>
+
+      <section class="board-panel">
+        <div id="game">
+          <img id="board" src="board.png" alt="Rota bord" />
+          <div id="holes"></div>
+          <div id="pieces"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="winModal" class="modal hidden">
+    <div class="modal-card">
+      <h2>Spel afgelopen</h2>
+      <p id="winMessage">Speler 1 wint!</p>
+      <button id="playAgainBtn" class="modal-btn">Opnieuw spelen</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
