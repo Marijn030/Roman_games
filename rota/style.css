@@ -235,13 +235,8 @@ body {
     drop-shadow(0 8px 14px rgba(0,0,0,0.45));
 }
 
-.piece[data-player="2"].selected {
-  transform: translate(-50%, -50%) scale(1.25);
-  filter:
-    brightness(0.28)
-    contrast(1.35)
-    drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
-    drop-shadow(0 8px 14px rgba(0,0,0,0.65));
+.piece[data-player="2"] {
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
 }
 
 .modal {
@@ -307,6 +302,31 @@ body {
   .piece {
     width: 40px;
     aspect-ratio: 1 / 1;
+    object-fit: contain;
+  }
+
+  /* Fix washed-out colors on mobile */
+
+  .piece[data-player="1"] {
+    filter:
+      brightness(1.05)
+      contrast(1.1)
+      drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+  }
+
+  .piece[data-player="2"] {
+    filter:
+      brightness(0.25)
+      contrast(1.4)
+      drop-shadow(0 6px 10px rgba(0,0,0,0.7));
+  }
+
+  .piece[data-player="2"].selected {
+    filter:
+      brightness(0.25)
+      contrast(1.4)
+      drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
+      drop-shadow(0 8px 14px rgba(0,0,0,0.7));
   }
 }
 
