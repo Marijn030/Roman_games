@@ -3,65 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rota spel</title>
+  <title>Romeinse spellen</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="page-overlay"></div>
 
-  <main class="app">
-    <header class="topbar">
-      <h1>Rota spel</h1>
-      <p class="subtitle">Plaats je stenen, vorm een lijn door het midden en win.</p>
-      <p>Het speelveld bestaat uit een cirkel die is verdeeld in acht taartpunten, 
-        met op elk kruispunt een plek voor een steen. Het doel van het spel is
-      om drie stenen op één lijn te krijgen door het midden, dus je kan het spel zien als
-      de Romeinse variant van drie-op-een-rij. Eerst leggen beide spelers om de beurt 
-      drie stenen op de lege plekken en dan mogen zij die om de beurt naar een aangrenzende lege 
-      plek verplaatsen totdat een van de twee spelers er drie op een rij krijgt en het spel wint.</p>
+  <main class="home">
+    <header class="hero">
+      <h1>Romeinse spellen</h1>
+      <p class="subtitle">
+        Kies een spel en speel direct in je browser.
+      </p>
     </header>
 
-    <section class="game-shell">
-      <aside class="info-panel">
-        <div class="status-card">
-          <span class="label">Fase</span>
-          <div id="phaseText" class="value">Plaatsen</div>
+    <section class="game-grid">
+      <a class="game-card" href="rota/index.html">
+        <div class="card-content">
+          <h2>Rota</h2>
+          <p>
+            De Romeinse variant van drie-op-een-rij.
+            Plaats drie stenen en probeer als eerste een lijn door het midden te vormen.
+          </p>
+          <span class="play-btn">Speel Rota</span>
         </div>
+      </a>
 
-        <div class="status-card">
-          <span class="label">Beurt</span>
-          <div id="turnText" class="value player-1">Speler 1 legt een steen</div>
+      <a class="game-card" href="mola/index.html">
+        <div class="card-content">
+          <h2>Mola</h2>
+          <p>
+            Speel op een bord met 24 plekken en 9 stenen per speler.
+            Vorm molens van drie stenen en zet je tegenstander buitenspel.
+          </p>
+          <span class="play-btn">Speel Mola</span>
         </div>
-
-        <div class="status-card small">
-          <span class="label">Geplaatste stenen</span>
-          <div class="stone-counts">
-            <div>Speler 1: <strong id="countP1">0</strong>/3</div>
-            <div>Speler 2: <strong id="countP2">0</strong>/3</div>
-          </div>
-        </div>
-
-        <button id="resetBtn" class="reset-btn">Reset spel</button>
-      </aside>
-
-      <section class="board-panel">
-        <div id="game">
-          <img id="board" src="board.png" alt="Rota bord" />
-          <div id="holes"></div>
-          <div id="pieces"></div>
-        </div>
-      </section>
+      </a>
     </section>
   </main>
-
-  <div id="winModal" class="modal hidden">
-    <div class="modal-card">
-      <h2>Spel afgelopen</h2>
-      <p id="winMessage">Speler 1 wint!</p>
-      <button id="playAgainBtn" class="modal-btn">Opnieuw spelen</button>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
