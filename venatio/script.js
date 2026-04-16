@@ -1,7 +1,9 @@
 const BOARD_WIDTH = 1316;
 const BOARD_HEIGHT = 883;
 
-// Node order follows your image-map order
+const PREY = 1;   // white
+const HUNTER = 2; // black
+
 const nodes = [
   { x: 668,  y: 66,  r: 27 }, // 0 top center
   { x: 957,  y: 66,  r: 26 }, // 1 top right-inner
@@ -19,14 +21,14 @@ const nodes = [
   { x: 1250, y: 518, r: 26 }  // 13 right lower-mid
 ];
 
-// Board graph based on the lines in your diagram
+// Graph from the line layout
 const connections = {
-  4:  [3, 6],
-  3:  [4, 0, 6],
   0:  [3, 1, 10],
   1:  [0, 2, 5],
   2:  [1, 5],
-
+  3:  [4, 0, 6],
+  4:  [3, 6],
+  5:  [2, 1, 13],
   6:  [4, 3, 7],
   7:  [6, 8, 9],
   8:  [7, 9],
@@ -34,18 +36,10 @@ const connections = {
   10: [9, 11, 0],
   11: [10, 12, 13],
   12: [11, 13],
-
-  5:  [2, 1, 13],
   13: [5, 12, 11]
 };
 
-// Piece types
-const PREY = 1;   // white
-const HUNTER = 2; // black
-
 // Starting setup
-// White starts with one in top left and bottom left
-// Black starts with four on the right side
 const START_BOARD = Array(14).fill(null);
 START_BOARD[4] = PREY;
 START_BOARD[8] = PREY;
@@ -55,25 +49,37 @@ START_BOARD[13] = HUNTER;
 START_BOARD[12] = HUNTER;
 
 let board = [...START_BOARD];
-let currentPlayer = HUNTER; // hunter begins
+let currentPlayer = HUNTER;
 let selected = null;
 let gameOver = false;
 let hunterMoveCount = 0;
+
+let round = 1;
+let hunterOwner = "A"; // round 1: A hunts, round 2: B hunts
+let scores = {
+  A: null,
+  B: null
+};
 
 const game = document.getElementById("game");
 const holesContainer = document.getElementById("holes");
 const piecesContainer = document.getElementById("pieces");
 
+const roundText = document.getElementById("roundText");
+const rolesText = document.getElementById("rolesText");
 const phaseText = document.getElementById("phaseText");
 const turnText = document.getElementById("turnText");
 const hunterMoves = document.getElementById("hunterMoves");
 const freePreyCount = document.getElementById("freePreyCount");
 const trappedPreyCount = document.getElementById("trappedPreyCount");
+const scoreA = document.getElementById("scoreA");
+const scoreB = document.getElementById("scoreB");
 const resetBtn = document.getElementById("resetBtn");
 
-const winModal = document.getElementById("winModal");
-const winMessage = document.getElementById("winMessage");
-const playAgainBtn = document.getElementById("playAgainBtn");
+const roundModal = document.getElementById("roundModal");
+const roundModalTitle = document.getElementById("roundModalTitle");
+const roundModalMessage = document.getElementById("roundModalMessage");
+const nextRoundBtn = document.getElementById("nextRoundBtn");
 
 function scaleX(x) {
   return (x / BOARD_WIDTH) * game.clientWidth;
@@ -104,12 +110,6 @@ function updatePiecePosition(pieceEl, index) {
   pieceEl.dataset.index = String(index);
 }
 
-function getPieceElementAt(index) {
-  return [...document.querySelectorAll(".piece")].find(
-    el => Number(el.dataset.index) === index
-  );
-}
-
 function clearSelection() {
   document.querySelectorAll(".piece.selected").forEach(el => {
     el.classList.remove("selected");
@@ -117,13 +117,8 @@ function clearSelection() {
   selected = null;
 }
 
-function getPlayerName(player) {
-  return player === HUNTER ? "Jager" : "Prooi";
-}
-
 function getLegalMoves(index) {
-  const occupant = board[index];
-  if (occupant === null) return [];
+  if (board[index] === null) return [];
   return connections[index].filter(next => board[next] === null);
 }
 
@@ -132,15 +127,19 @@ function isTrappedPrey(index) {
 }
 
 function countTrappedPrey() {
-  return board.reduce((count, occupant, index) => {
-    return count + (occupant === PREY && isTrappedPrey(index) ? 1 : 0);
-  }, 0);
+  let total = 0;
+  for (let i = 0; i < board.length; i++) {
+    if (isTrappedPrey(i)) total++;
+  }
+  return total;
 }
 
 function countFreePrey() {
-  return board.reduce((count, occupant, index) => {
-    return count + (occupant === PREY && !isTrappedPrey(index) ? 1 : 0);
-  }, 0);
+  let total = 0;
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] === PREY && !isTrappedPrey(i)) total++;
+  }
+  return total;
 }
 
 function refreshPieceStates() {
@@ -170,9 +169,17 @@ function refreshHoles() {
 }
 
 function updateStatus() {
+  roundText.textContent = `Ronde ${round} van 2`;
+  rolesText.textContent =
+    hunterOwner === "A"
+      ? "Speler A = Jager, Speler B = Prooi"
+      : "Speler B = Jager, Speler A = Prooi";
+
   hunterMoves.textContent = hunterMoveCount;
   freePreyCount.textContent = countFreePrey();
   trappedPreyCount.textContent = countTrappedPrey();
+  scoreA.textContent = scores.A === null ? "—" : scores.A;
+  scoreB.textContent = scores.B === null ? "—" : scores.B;
 
   if (gameOver) {
     phaseText.textContent = "Afgelopen";
@@ -184,28 +191,25 @@ function updateStatus() {
   phaseText.textContent = "Spelen";
 
   if (!selected) {
-    turnText.textContent = `${getPlayerName(currentPlayer)} (${currentPlayer === HUNTER ? "zwart" : "wit"}) is aan zet`;
+    turnText.textContent =
+      `${currentPlayer === HUNTER ? "Jager" : "Prooi"} (${currentPlayer === HUNTER ? "zwart" : "wit"}) is aan zet`;
   } else {
-    turnText.textContent = `${getPlayerName(currentPlayer)}: kies een aangrenzend leeg kruispunt`;
+    turnText.textContent =
+      `${currentPlayer === HUNTER ? "Jager" : "Prooi"}: kies een aangrenzend leeg kruispunt`;
   }
 
   turnText.className = `value player-${currentPlayer}`;
 }
 
-function showWinPopup() {
-  gameOver = true;
-  clearSelection();
-  refreshHoles();
-  refreshPieceStates();
-  updateStatus();
-
-  winMessage.textContent =
-    `De jager heeft beide prooipionnen ingesloten in ${hunterMoveCount} zetten.`;
-  winModal.classList.remove("hidden");
+function showRoundModal(title, message, buttonText = "Verder") {
+  roundModalTitle.textContent = title;
+  roundModalMessage.textContent = message;
+  nextRoundBtn.textContent = buttonText;
+  roundModal.classList.remove("hidden");
 }
 
-function hideWinPopup() {
-  winModal.classList.add("hidden");
+function hideRoundModal() {
+  roundModal.classList.add("hidden");
 }
 
 function switchPlayer() {
@@ -229,6 +233,7 @@ function createPiece(player, index) {
 
     if (gameOver) return;
     if (player !== currentPlayer) return;
+    if (player === PREY && isTrappedPrey(Number(el.dataset.index))) return;
 
     clearSelection();
     el.classList.add("selected");
@@ -266,11 +271,56 @@ function handleHoleClick(index) {
   updateStatus();
 
   if (countTrappedPrey() === 2) {
-    showWinPopup();
+    finishRound();
     return;
   }
 
   switchPlayer();
+}
+
+function finishRound() {
+  gameOver = true;
+  clearSelection();
+  refreshHoles();
+  refreshPieceStates();
+  updateStatus();
+
+  scores[hunterOwner] = hunterMoveCount;
+
+  if (round === 1) {
+    showRoundModal(
+      "Ronde 1 afgelopen",
+      `Speler ${hunterOwner} sloot de prooi in ${hunterMoveCount} zetten in. Nu wisselen de rollen.`,
+      "Start ronde 2"
+    );
+  } else {
+    let result;
+    if (scores.A < scores.B) {
+      result = `Speler A wint met ${scores.A} tegen ${scores.B} jagerzetten.`;
+    } else if (scores.B < scores.A) {
+      result = `Speler B wint met ${scores.B} tegen ${scores.A} jagerzetten.`;
+    } else {
+      result = `Gelijkspel: beide spelers hadden ${scores.A} jagerzetten nodig.`;
+    }
+
+    showRoundModal(
+      "Wedstrijd afgelopen",
+      result,
+      "Opnieuw spelen"
+    );
+  }
+}
+
+function startNextRoundOrReset() {
+  hideRoundModal();
+
+  if (round === 1) {
+    round = 2;
+    hunterOwner = "B";
+    resetBoardForRound();
+  } else {
+    resetMatch();
+  }
 }
 
 function createHoles() {
@@ -289,7 +339,6 @@ function createHoles() {
     hole.style.height = `${r * 2}px`;
 
     hole.addEventListener("click", () => handleHoleClick(index));
-
     holesContainer.appendChild(hole);
   });
 
@@ -300,9 +349,7 @@ function createAllPieces() {
   piecesContainer.innerHTML = "";
 
   board.forEach((player, index) => {
-    if (player !== null) {
-      createPiece(player, index);
-    }
+    if (player !== null) createPiece(player, index);
   });
 
   refreshPieceStates();
@@ -315,21 +362,28 @@ function repositionPieces() {
   });
 }
 
-function resetGame() {
+function resetBoardForRound() {
   board = [...START_BOARD];
   currentPlayer = HUNTER;
   selected = null;
   gameOver = false;
   hunterMoveCount = 0;
 
-  hideWinPopup();
   createHoles();
   createAllPieces();
   updateStatus();
 }
 
-resetBtn.addEventListener("click", resetGame);
-playAgainBtn.addEventListener("click", resetGame);
+function resetMatch() {
+  round = 1;
+  hunterOwner = "A";
+  scores = { A: null, B: null };
+  hideRoundModal();
+  resetBoardForRound();
+}
+
+resetBtn.addEventListener("click", resetMatch);
+nextRoundBtn.addEventListener("click", startNextRoundOrReset);
 
 window.addEventListener("load", () => {
   createHoles();

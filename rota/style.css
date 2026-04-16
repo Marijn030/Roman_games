@@ -199,9 +199,8 @@ body {
 .piece {
   position: absolute;
   width: 9%;
-  height: 9%;
+  aspect-ratio: 1 / 1;
   max-width: 72px;
-  max-height: 72px;
   transform: translate(-50%, -50%);
   cursor: pointer;
   z-index: 3;

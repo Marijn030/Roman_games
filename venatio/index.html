@@ -14,19 +14,27 @@
 
     <header class="topbar">
       <h1>Venatio</h1>
-      <p class="subtitle">Speel als jager of prooi op een Romeins jachtbord.</p>
+      <p class="subtitle">Een Romeins jachtspel in twee rondes.</p>
       <p>
         Twee spelers nemen het tegen elkaar op: de jager met 4 stenen en de prooi met 2 stenen.
-        De jager begint. Spelers verplaatsen om de beurt één steen over een lijn naar een aangrenzend
-        kruispunt. Je mag niet over andere stenen springen en stenen mogen niet op dezelfde plek staan.
-        Een prooisteen is ingesloten als die geen enkele zet meer kan doen. Het spel eindigt zodra beide
-        prooistenen zijn ingesloten. Tel het aantal zetten van de jager en probeer er zo weinig mogelijk 
-        te hebben gedaan bij het vangen van de prooistenen, een goede jager doet het in 18 zetten of minder.
+        De jager begint. Spelers verplaatsen om de beurt een steen over een lijn naar een aangrenzend
+        kruispunt. Een prooisteen is ingesloten als die geen enkele zet meer kan doen. Speel twee rondes:
+        beide spelers zijn één keer de jager. De jager die de prooi in de minste zetten insluit, wint.
       </p>
     </header>
 
     <section class="game-shell">
       <aside class="info-panel">
+        <div class="status-card">
+          <span class="label">Ronde</span>
+          <div id="roundText" class="value">Ronde 1 van 2</div>
+        </div>
+
+        <div class="status-card">
+          <span class="label">Rollen</span>
+          <div id="rolesText" class="value">Speler A = Jager, Speler B = Prooi</div>
+        </div>
+
         <div class="status-card">
           <span class="label">Fase</span>
           <div id="phaseText" class="value">Spelen</div>
@@ -38,7 +46,7 @@
         </div>
 
         <div class="status-card small">
-          <span class="label">Stand</span>
+          <span class="label">Stand huidige ronde</span>
           <div class="stone-counts">
             <div>Zetten jager: <strong id="hunterMoves">0</strong></div>
             <div>Prooi vrij: <strong id="freePreyCount">2</strong>/2</div>
@@ -46,7 +54,15 @@
           </div>
         </div>
 
-        <button id="resetBtn" class="reset-btn">Reset spel</button>
+        <div class="status-card small">
+          <span class="label">Score</span>
+          <div class="stone-counts">
+            <div>Speler A als jager: <strong id="scoreA">—</strong></div>
+            <div>Speler B als jager: <strong id="scoreB">—</strong></div>
+          </div>
+        </div>
+
+        <button id="resetBtn" class="reset-btn">Hele wedstrijd resetten</button>
       </aside>
 
       <section class="board-panel">
@@ -59,11 +75,11 @@
     </section>
   </main>
 
-  <div id="winModal" class="modal hidden">
+  <div id="roundModal" class="modal hidden">
     <div class="modal-card">
-      <h2>Spel afgelopen</h2>
-      <p id="winMessage">De jager heeft de prooi ingesloten.</p>
-      <button id="playAgainBtn" class="modal-btn">Opnieuw spelen</button>
+      <h2 id="roundModalTitle">Ronde afgelopen</h2>
+      <p id="roundModalMessage">Speler A sloot de prooi in 12 zetten in.</p>
+      <button id="nextRoundBtn" class="modal-btn">Verder</button>
     </div>
   </div>
 

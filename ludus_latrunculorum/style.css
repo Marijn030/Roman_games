@@ -234,8 +234,8 @@ body {
 
 .piece {
   position: absolute;
-  width: clamp(34px, 5.4vw, 54px);
-  height: clamp(34px, 5.4vw, 54px);
+  width: clamp(48px, 7vw, 72px);
+  height: clamp(48px, 7vw, 72px);
   transform: translate(-50%, -50%);
   cursor: pointer;
   z-index: 3;

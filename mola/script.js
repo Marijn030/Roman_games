@@ -2,7 +2,6 @@ const BOARD_WIDTH = 920;
 const BOARD_HEIGHT = 690;
 const STONES_PER_PLAYER = 9;
 
-// Node order follows your image-map coordinates
 const nodes = [
   { x: 203, y: 150, r: 15 }, // 0  outer top-left
   { x: 464, y: 150, r: 16 }, // 1  outer top-mid
