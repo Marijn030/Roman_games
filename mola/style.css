@@ -212,7 +212,16 @@ body {
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: auto;
+  object-fit: contain;
+}
+
+/* desktop/default */
+.piece[data-player="1"] {
   filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+}
+
+.piece[data-player="2"] {
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
 }
 
 .piece:hover {
@@ -221,15 +230,30 @@ body {
 
 .piece.selected {
   transform: translate(-50%, -50%) scale(1.25);
+}
+
+.piece[data-player="1"].selected {
   filter:
     drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
     drop-shadow(0 8px 14px rgba(0,0,0,0.45));
 }
 
-.piece.removable {
+.piece[data-player="2"].selected {
+  filter:
+    drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
+    drop-shadow(0 8px 14px rgba(0,0,0,0.65));
+}
+
+.piece[data-player="1"].removable {
   filter:
     drop-shadow(0 0 0.5rem rgba(255, 110, 110, 0.95))
     drop-shadow(0 8px 14px rgba(0,0,0,0.45));
+}
+
+.piece[data-player="2"].removable {
+  filter:
+    drop-shadow(0 0 0.5rem rgba(255, 110, 110, 0.95))
+    drop-shadow(0 8px 14px rgba(0,0,0,0.65));
 }
 
 .modal {
@@ -281,25 +305,30 @@ body {
     order: 1;
   }
 
-  /* iPad / tablet: 33% smaller stones */
+  /* iPad / tablet: 50% smaller stones */
   .piece {
-    width: clamp(23px, 3.5vw, 35px);
-    height: clamp(23px, 3.5vw, 35px);
+    width: clamp(17px, 2.6vw, 26px);
+    height: clamp(17px, 2.6vw, 26px);
     object-fit: contain;
   }
 
-  /* keep white bright */
   .piece[data-player="1"] {
     filter:
       brightness(1)
       drop-shadow(0 6px 10px rgba(0,0,0,0.35));
   }
 
-  /* make black clearly darker on tablet */
   .piece[data-player="2"] {
     filter:
       brightness(0.72)
       drop-shadow(0 6px 10px rgba(0,0,0,0.65));
+  }
+
+  .piece[data-player="1"].selected {
+    filter:
+      brightness(1)
+      drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
+      drop-shadow(0 8px 14px rgba(0,0,0,0.45));
   }
 
   .piece[data-player="2"].selected {
@@ -307,6 +336,13 @@ body {
       brightness(0.72)
       drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
       drop-shadow(0 8px 14px rgba(0,0,0,0.65));
+  }
+
+  .piece[data-player="1"].removable {
+    filter:
+      brightness(1)
+      drop-shadow(0 0 0.5rem rgba(255, 110, 110, 0.95))
+      drop-shadow(0 8px 14px rgba(0,0,0,0.45));
   }
 
   .piece[data-player="2"].removable {
@@ -327,14 +363,6 @@ body {
     border-radius: 18px;
   }
 
-  /* mobile: 50% smaller stones */
-  .piece {
-    width: clamp(17px, 2.6vw, 26px);
-    height: clamp(17px, 2.6vw, 26px);
-    object-fit: contain;
-  }
-
-  /* stronger mobile contrast fix */
   .piece[data-player="1"] {
     filter:
       brightness(1)
@@ -347,11 +375,25 @@ body {
       drop-shadow(0 5px 8px rgba(0,0,0,0.75));
   }
 
+  .piece[data-player="1"].selected {
+    filter:
+      brightness(1)
+      drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
+      drop-shadow(0 8px 14px rgba(0,0,0,0.45));
+  }
+
   .piece[data-player="2"].selected {
     filter:
       brightness(0.62)
       drop-shadow(0 0 0.35rem rgba(255, 240, 180, 0.85))
       drop-shadow(0 8px 14px rgba(0,0,0,0.75));
+  }
+
+  .piece[data-player="1"].removable {
+    filter:
+      brightness(1)
+      drop-shadow(0 0 0.5rem rgba(255, 110, 110, 0.95))
+      drop-shadow(0 8px 14px rgba(0,0,0,0.45));
   }
 
   .piece[data-player="2"].removable {
