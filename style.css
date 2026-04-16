@@ -34,6 +34,7 @@ body {
   position: absolute;
   inset: 0;
   z-index: 3;
+  pointer-events: none;
 }
 
 .hole {
@@ -60,6 +61,7 @@ body {
   transition: transform 0.15s ease;
   user-select: none;
   -webkit-user-drag: none;
+  pointer-events: auto;
 }
 
 .piece.selected {
