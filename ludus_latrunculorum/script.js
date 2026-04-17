@@ -38,6 +38,7 @@ let placed = { 1: 0, 2: 0 };
 let selected = null;
 let gameOver = false;
 let variant = null;
+let hintsEnabled = true;
 
 // Seneca state
 let inciti = new Set(); // indices of trapped stones
@@ -56,7 +57,6 @@ const variantPicker = document.getElementById("variantPicker");
 const choosePisoBtn = document.getElementById("choosePisoBtn");
 const chooseSenecaBtn = document.getElementById("chooseSenecaBtn");
 
-const phaseText = document.getElementById("phaseText");
 const turnText = document.getElementById("turnText");
 const countP1Placed = document.getElementById("countP1Placed");
 const countP2Placed = document.getElementById("countP2Placed");
@@ -64,6 +64,7 @@ const countP1Board = document.getElementById("countP1Board");
 const countP2Board = document.getElementById("countP2Board");
 const countP1Inciti = document.getElementById("countP1Inciti");
 const countP2Inciti = document.getElementById("countP2Inciti");
+const toggleHintsBtn = document.getElementById("toggleHintsBtn");
 const resetBtn = document.getElementById("resetBtn");
 
 const winModal = document.getElementById("winModal");
@@ -248,6 +249,10 @@ function refreshHoles() {
       return;
     }
 
+    if (!hintsEnabled) {
+      return;
+    }
+
     if (isPlacementPhase()) {
       holeEl.classList.add("valid-target");
       return;
@@ -302,32 +307,26 @@ function updateStatus() {
     "Nog niet gekozen";
 
   if (!variant) {
-    phaseText.textContent = "Start";
     turnText.textContent = "Selecteer Piso of Seneca om te starten";
     turnText.className = "value";
     return;
   }
 
   if (gameOver) {
-    phaseText.textContent = "Afgelopen";
     turnText.textContent = "Het spel is voorbij";
     turnText.className = "value";
     return;
   }
 
   if (variant === VARIANT_SENECA && canRemovePendingThisTurn(currentPlayer)) {
-    phaseText.textContent = "Verwijderen";
     turnText.textContent = `Speler ${currentPlayer}: verwijder eerst 1 geldige incitus`;
     turnText.className = `value player-${currentPlayer}`;
     return;
   }
 
   if (isPlacementPhase()) {
-    phaseText.textContent = "Plaatsen";
     turnText.textContent = `Speler ${currentPlayer}: kies een leeg vak om een steen te plaatsen`;
   } else {
-    phaseText.textContent = "Verplaatsen";
-
     if (!selected) {
       turnText.textContent =
         `Speler ${currentPlayer}: kies een vrije steen om te verplaatsen of te springen`;
@@ -701,4 +700,14 @@ window.addEventListener("load", () => {
 window.addEventListener("resize", () => {
   createHoles();
   repositionPieces();
+});
+
+toggleHintsBtn.addEventListener("click", () => {
+  hintsEnabled = !hintsEnabled;
+
+  toggleHintsBtn.textContent = hintsEnabled
+    ? "Zet hints uit"
+    : "Zet hints aan";
+
+  refreshHoles();
 });
