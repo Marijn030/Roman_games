@@ -37,6 +37,7 @@ let currentPlayer = 1;
 let placed = { 1: 0, 2: 0 };
 let selected = null;
 let gameOver = false;
+let hintsEnabled = true;
 
 const game = document.getElementById("game");
 const boardImg = document.getElementById("board");
@@ -47,6 +48,7 @@ const phaseText = document.getElementById("phaseText");
 const turnText = document.getElementById("turnText");
 const countP1 = document.getElementById("countP1");
 const countP2 = document.getElementById("countP2");
+const toggleHintsBtn = document.getElementById("toggleHintsBtn");
 const resetBtn = document.getElementById("resetBtn");
 
 const winModal = document.getElementById("winModal");
@@ -101,6 +103,8 @@ function getValidMoves(fromIndex) {
 }
 
 function highlightValidMoves(fromIndex) {
+  if (!hintsEnabled) return;
+
   clearHighlights();
 
   const validMoves = getValidMoves(fromIndex);
@@ -135,7 +139,7 @@ function refreshHoles() {
     }
   });
 
-  if (selected) {
+  if (selected && hintsEnabled) {
     highlightValidMoves(selected.from);
   } else {
     clearHighlights();
@@ -326,4 +330,18 @@ window.addEventListener("load", () => {
 window.addEventListener("resize", () => {
   createHoles();
   repositionPieces();
+});
+
+toggleHintsBtn.addEventListener("click", () => {
+  hintsEnabled = !hintsEnabled;
+
+  toggleHintsBtn.textContent = hintsEnabled
+    ? "Zet hints uit"
+    : "Zet hints aan";
+
+  if (!hintsEnabled) {
+    clearHighlights();
+  } else if (selected) {
+    highlightValidMoves(selected.from);
+  }
 });
