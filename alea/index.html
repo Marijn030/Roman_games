@@ -20,8 +20,9 @@
 
     <header class="topbar">
       <h1>Dobbelspel</h1>
-      <p class="subtitle">Klik op de dobbelstenen bovenaan en gooi 5 dobbelstenen door de Turricula (toren).
-        Bedenk zelf een leuk spel of probeer zo dicht mogelijk bij 21 te gooien, maar niet hoger.
+      <p class="subtitle">
+        Klik op de dobbelstenen bovenaan om ze vast te houden of weer mee te laten doen.
+        Klik daarna op de Turricula om alleen de actieve dobbelstenen te gooien.
       </p>
 
     </header>
@@ -42,7 +43,8 @@
         <button id="resetBtn" class="action-btn secondary">Reset</button>
 
         <p class="help-text">
-          Klik op de dobbelstenen bovenaan of op de knop om een nieuwe worp te doen.
+          Klik op een dobbelsteen bovenaan om die vast te houden of weer actief te maken.
+          Klik op de toren of op de knop om alleen de actieve dobbelstenen te gooien.
         </p>
       </aside>
 
@@ -51,80 +53,90 @@
           <img id="tableImage" class="table-image" src="table.png" alt="Dobbeltafel" />
 
           <div class="top-dice-area">
-            <button id="dieTrigger" class="dice-strip-trigger" type="button" aria-label="Gooi dobbelstenen">
-                <div class="top-dice-strip">
+            <div id="topDiceStrip" class="top-dice-strip" aria-label="Kies welke dobbelstenen meedoen">
+              <button class="top-die-button active" type="button" data-die="0" aria-pressed="false">
                 <model-viewer
-                    class="top-spin-die"
-                    src="dice.glb"
-                    preload
-                    autoplay
-                    auto-rotate
-                    auto-rotate-speed="140deg"
-                    rotation-per-second="140deg"
-                    interaction-prompt="none"
-                    disable-zoom
-                    disable-pan
-                    disable-tap>
+                  class="top-spin-die"
+                  src="dice.glb"
+                  preload
+                  autoplay
+                  auto-rotate
+                  auto-rotate-speed="140deg"
+                  rotation-per-second="140deg"
+                  interaction-prompt="none"
+                  disable-zoom
+                  disable-pan
+                  disable-tap>
                 </model-viewer>
+              </button>
 
+              <button class="top-die-button active" type="button" data-die="1" aria-pressed="false">
                 <model-viewer
-                    class="top-spin-die"
-                    src="dice.glb"
-                    preload
-                    autoplay
-                    auto-rotate
-                    auto-rotate-speed="140deg"
-                    rotation-per-second="140deg"
-                    interaction-prompt="none"
-                    disable-zoom
-                    disable-pan
-                    disable-tap>
+                  class="top-spin-die"
+                  src="dice.glb"
+                  preload
+                  autoplay
+                  auto-rotate
+                  auto-rotate-speed="140deg"
+                  rotation-per-second="140deg"
+                  interaction-prompt="none"
+                  disable-zoom
+                  disable-pan
+                  disable-tap>
                 </model-viewer>
+              </button>
 
+              <button class="top-die-button active" type="button" data-die="2" aria-pressed="false">
                 <model-viewer
-                    class="top-spin-die"
-                    src="dice.glb"
-                    preload
-                    autoplay
-                    auto-rotate
-                    auto-rotate-speed="140deg"
-                    rotation-per-second="140deg"
-                    interaction-prompt="none"
-                    disable-zoom
-                    disable-pan
-                    disable-tap>
+                  class="top-spin-die"
+                  src="dice.glb"
+                  preload
+                  autoplay
+                  auto-rotate
+                  auto-rotate-speed="140deg"
+                  rotation-per-second="140deg"
+                  interaction-prompt="none"
+                  disable-zoom
+                  disable-pan
+                  disable-tap>
                 </model-viewer>
+              </button>
 
+              <button class="top-die-button active" type="button" data-die="3" aria-pressed="false">
                 <model-viewer
-                    class="top-spin-die"
-                    src="dice.glb"
-                    preload
-                    autoplay
-                    auto-rotate
-                    auto-rotate-speed="140deg"
-                    rotation-per-second="140deg"
-                    interaction-prompt="none"
-                    disable-zoom
-                    disable-pan
-                    disable-tap>
+                  class="top-spin-die"
+                  src="dice.glb"
+                  preload
+                  autoplay
+                  auto-rotate
+                  auto-rotate-speed="140deg"
+                  rotation-per-second="140deg"
+                  interaction-prompt="none"
+                  disable-zoom
+                  disable-pan
+                  disable-tap>
                 </model-viewer>
+              </button>
 
+              <button class="top-die-button active" type="button" data-die="4" aria-pressed="false">
                 <model-viewer
-                    class="top-spin-die"
-                    src="dice.glb"
-                    preload
-                    autoplay
-                    auto-rotate
-                    auto-rotate-speed="140deg"
-                    rotation-per-second="140deg"
-                    interaction-prompt="none"
-                    disable-zoom
-                    disable-pan
-                    disable-tap>
+                  class="top-spin-die"
+                  src="dice.glb"
+                  preload
+                  autoplay
+                  auto-rotate
+                  auto-rotate-speed="140deg"
+                  rotation-per-second="140deg"
+                  interaction-prompt="none"
+                  disable-zoom
+                  disable-pan
+                  disable-tap>
                 </model-viewer>
-                </div>
-            </button>
+              </button>
+            </div>
           </div>
+
+          <button id="towerTrigger" class="tower-hitbox" type="button" aria-label="Gooi de actieve dobbelstenen via de toren"></button>
 
           <div id="towerWrap" class="tower-wrap">
             <img id="towerImage" class="tower-image" src="tower.png" alt="Dobbeltoren" />

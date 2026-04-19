@@ -2,38 +2,65 @@ document.addEventListener('DOMContentLoaded', () => {
   const tableScene = document.getElementById('tableScene');
   const rollBtn = document.getElementById('rollBtn');
   const resetBtn = document.getElementById('resetBtn');
-  const dieTrigger = document.getElementById('dieTrigger');
+  const towerTrigger = document.getElementById('towerTrigger');
   const resultSummary = document.getElementById('resultSummary');
   const totalValue = document.getElementById('totalValue');
   const dieSlots = Array.from(document.querySelectorAll('.die-slot'));
+  const topDieButtons = Array.from(document.querySelectorAll('.top-die-button'));
 
   if (
     !tableScene ||
     !rollBtn ||
     !resetBtn ||
-    !dieTrigger ||
+    !towerTrigger ||
     !resultSummary ||
     !totalValue ||
-    dieSlots.length !== 5
+    dieSlots.length !== 5 ||
+    topDieButtons.length !== 5
   ) {
     console.error('Missing required dice game elements.');
     return;
   }
 
   let rolling = false;
+  let activeDice = [true, true, true, true, true];
+  let lastValues = [null, null, null, null, null];
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  function createRoll() {
-    return Array.from({ length: 5 }, () => randomInt(1, 6));
+  function updateTopDiceVisuals() {
+    topDieButtons.forEach((button, index) => {
+      const viewer = button.querySelector('model-viewer');
+      const isActive = activeDice[index];
+
+      button.classList.toggle('active', isActive);
+      button.classList.toggle('kept', !isActive);
+      button.setAttribute('aria-pressed', String(!isActive));
+
+      if (viewer) {
+        if (isActive) {
+          viewer.setAttribute('auto-rotate', '');
+        } else {
+          viewer.removeAttribute('auto-rotate');
+        }
+      }
+    });
   }
 
-  function updateSummary(values) {
-    const total = values.reduce((sum, value) => sum + value, 0);
-    resultSummary.textContent = values.join(' - ');
-    totalValue.textContent = String(total);
+  function getRollingIndexes() {
+    return activeDice
+      .map((isActive, index) => (isActive ? index : -1))
+      .filter(index => index !== -1);
+  }
+
+  function updateSummaryFromLastValues() {
+    const shown = lastValues.filter(value => value !== null);
+    const total = shown.reduce((sum, value) => sum + value, 0);
+
+    resultSummary.textContent = shown.length ? shown.join(' - ') : 'Nog niet gegooid';
+    totalValue.textContent = shown.length ? String(total) : '0';
   }
 
   function hideResults() {
@@ -53,118 +80,140 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function randomizeDicePositions() {
+  function randomizeDicePositions(indexesToPlace) {
     const isPhone = window.innerWidth <= 640;
     const placed = [];
     const minDistance = isPhone ? 20 : 16;
 
     const bounds = isPhone
-        ? { leftMin: 18, leftMax: 82, bottomMin: 10, bottomMax: 42 }
-        : { leftMin: 18, leftMax: 78, bottomMin: 12, bottomMax: 40 };
+      ? { leftMin: 18, leftMax: 82, bottomMin: 10, bottomMax: 42 }
+      : { leftMin: 18, leftMax: 78, bottomMin: 12, bottomMax: 40 };
 
-    dieSlots.forEach((slot) => {
-        let tries = 0;
-        let pos;
+    indexesToPlace.forEach((slotIndex) => {
+      const slot = dieSlots[slotIndex];
+      let tries = 0;
+      let pos;
 
-        do {
+      do {
         pos = {
-            left: randomInt(bounds.leftMin, bounds.leftMax),
-            bottom: randomInt(bounds.bottomMin, bounds.bottomMax)
+          left: randomInt(bounds.leftMin, bounds.leftMax),
+          bottom: randomInt(bounds.bottomMin, bounds.bottomMax)
         };
         tries++;
         if (tries > 100) break;
-        } while (
+      } while (
         placed.some((p) => {
-            const dx = p.left - pos.left;
-            const dy = p.bottom - pos.bottom;
-            return Math.sqrt(dx * dx + dy * dy) < minDistance;
+          const dx = p.left - pos.left;
+          const dy = p.bottom - pos.bottom;
+          return Math.sqrt(dx * dx + dy * dy) < minDistance;
         })
-        );
+      );
 
-        placed.push(pos);
+      placed.push(pos);
 
-        const img = slot.querySelector('.result-die');
-        const rot = randomInt(-18, 18);
+      const img = slot.querySelector('.result-die');
+      const rot = randomInt(-18, 18);
 
-        slot.style.left = `${pos.left}%`;
-        slot.style.bottom = `${pos.bottom}%`;
+      slot.style.left = `${pos.left}%`;
+      slot.style.bottom = `${pos.bottom}%`;
 
-        if (img) {
+      if (img) {
         img.style.transform = `translate(-50%, 0) rotate(${rot}deg)`;
-        }
+      }
     });
   }
 
-  function launchDiceFromTower(values) {
-    randomizeDicePositions();
+  function launchDiceFromTower(rollingIndexes) {
+    randomizeDicePositions(rollingIndexes);
 
-    dieSlots.forEach((slot, index) => {
+    rollingIndexes.forEach((slotIndex, sequenceIndex) => {
+      const slot = dieSlots[slotIndex];
       const img = slot.querySelector('.result-die');
+      const value = lastValues[slotIndex];
 
-      if (img) {
-        img.src = `dice${values[index]}.png`;
+      if (img && value !== null) {
+        img.src = `dice${value}.png`;
       }
 
       slot.classList.remove('visible', 'launching');
-
-      // start near tower exit
       slot.style.opacity = '0';
       slot.style.transform = 'translate(-50%, -180px) scale(0.45)';
 
       setTimeout(() => {
         slot.classList.add('launching');
-      }, 60 * index);
+      }, 60 * sequenceIndex);
 
       setTimeout(() => {
         slot.classList.remove('launching');
         slot.classList.add('visible');
         slot.style.opacity = '1';
         slot.style.transform = 'translate(-50%, 0) scale(1)';
-      }, 220 + (90 * index));
+      }, 220 + (90 * sequenceIndex));
     });
-
-    updateSummary(values);
   }
 
   function rollDice() {
     if (rolling) return;
 
+    const rollingIndexes = getRollingIndexes();
+
+    if (rollingIndexes.length === 0) {
+      resultSummary.textContent = 'Geen actieve dobbelstenen';
+      totalValue.textContent = '0';
+      return;
+    }
+
     rolling = true;
     tableScene.classList.add('rolling');
-    hideResults();
+
+    rollingIndexes.forEach((slotIndex) => {
+      const slot = dieSlots[slotIndex];
+      slot.classList.remove('visible', 'launching');
+      slot.style.opacity = '0';
+    });
 
     resultSummary.textContent = 'Dobbelstenen rollen...';
     totalValue.textContent = '...';
 
-    const values = createRoll();
+    rollingIndexes.forEach((slotIndex) => {
+      lastValues[slotIndex] = randomInt(1, 6);
+    });
 
     setTimeout(() => {
       tableScene.classList.remove('rolling');
-      launchDiceFromTower(values);
+      launchDiceFromTower(rollingIndexes);
+      updateSummaryFromLastValues();
       rolling = false;
     }, 950);
+  }
+
+  function toggleTopDie(index) {
+    if (rolling) return;
+
+    activeDice[index] = !activeDice[index];
+    updateTopDiceVisuals();
   }
 
   function resetGame() {
     rolling = false;
     tableScene.classList.remove('rolling');
+
+    activeDice = [true, true, true, true, true];
+    lastValues = [null, null, null, null, null];
+
     resetDieImages();
-    randomizeDicePositions();
-
-    dieSlots.forEach((slot) => {
-      slot.classList.remove('launching');
-      slot.classList.add('visible');
-      slot.style.opacity = '1';
-      slot.style.transform = 'translate(-50%, 0) scale(1)';
-    });
-
-    resultSummary.textContent = 'Nog niet gegooid';
-    totalValue.textContent = '0';
+    hideResults();
+    updateTopDiceVisuals();
+    updateSummaryFromLastValues();
   }
 
+  topDieButtons.forEach((button, index) => {
+    button.addEventListener('click', () => toggleTopDie(index));
+  });
+
+  towerTrigger.addEventListener('click', rollDice);
   rollBtn.addEventListener('click', rollDice);
   resetBtn.addEventListener('click', resetGame);
-  dieTrigger.addEventListener('click', rollDice);
 
   resetGame();
 });
