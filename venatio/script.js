@@ -210,6 +210,7 @@ function updateStatus() {
     return;
   }
 
+  // Which human player owns the current piece
   const owner = getPieceOwner(currentPlayer);
   const color = getPlayerColor(owner);
 
@@ -221,7 +222,7 @@ function updateStatus() {
       `${currentPlayer === HUNTER ? "Jager" : "Prooi"}: kies een aangrenzend leeg kruispunt`;
   }
 
-  const owner = getPieceOwner(currentPlayer);
+  // Use player number for text color
   turnText.className = `value player-${owner}`;
 }
 
