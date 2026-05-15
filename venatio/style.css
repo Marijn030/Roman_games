@@ -116,9 +116,10 @@ body {
   text-shadow: 0 0 8px rgba(255,255,255,0.6);
 }
 
+.value.player-1,
 .value.player-2 {
-  color: #111111;
-  text-shadow: 0 0 6px rgba(0,0,0,0.6);
+  color: #fff5dd;
+  text-shadow: none;
 }
 
 .stone-counts {
